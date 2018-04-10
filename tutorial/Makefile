@@ -35,15 +35,25 @@ standard16x16.path :
 	-x -12.5 -X 0.1 \
 	-z 2.0 -Z 0.1 \
 
+#
+# Generate synthetic observations
+#
 syntheticstudy.obs : syntheticstudy.image standard16x16.path $(LMNOISE) $(HMNOISE)
 	../mksyntheticobservations -i syntheticstudy.image -I standard16x16.path \
 	-S ../stm/SkytemLM-BHMAR.stm -S ../stm/SkytemHM-BHMAR.stm \
 	-N $(LMNOISE) -N $(HMNOISE) \
 	-o $@ -O syntheticstudy.true
 
+#
+# Construct approximate model (wavelet thresholded)
+#
 syntheticstudy.model : syntheticstudy.image
-	../analysemodel -i syntheticstudy.rawimage -d 4 -l 4 -w 4 -W 4 -i syntheticstudy.rawimage -t 0.025 -T $@ -L
+	../analysemodel -i syntheticstudy.rawimage -d 4 -l 4 -w 4 -W 4 -i syntheticstudy.rawimage -t 0.10 -T $@ -L
 
+
+#
+# Check likelihood of approximate model
+#
 syntheticstudy.like : syntheticstudy.obs syntheticstudy.model
 	../modellikelihood -i syntheticstudy.model -o syntheticstudy.obs \
 	-s ../stm/SkytemLM-BHMAR.stm -s ../stm/SkytemHM-BHMAR.stm \
