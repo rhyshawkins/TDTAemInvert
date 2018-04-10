@@ -1,0 +1,80 @@
+System Begin
+	Name = SkyTemLowMoment-BHMAR
+	Type = Time Domain
+
+	Transmitter Begin
+		NumberOfTurns = 1
+		PeakCurrent   = 1
+		LoopArea      = 1
+		BaseFrequency = 222.22222222222222222
+		WaveformDigitisingFrequency = 3640888.888888889
+		WaveFormCurrent Begin
+			-1.0000e-003 0.0000e+000
+			-9.1400e-004 6.2500e-001
+			-7.8600e-004 9.1200e-001
+			-5.9300e-004 9.9000e-001
+			0.0000e+000 1.0000e+000
+			5.4500e-007 9.8900e-001
+			1.0200e-006 9.4400e-001
+			1.5700e-006 8.5500e-001
+			2.7400e-006 6.3500e-001
+			4.4000e-006 3.1900e-001
+			6.0700e-006 5.8200e-002
+			6.5200e-006 2.5700e-002
+			7.0600e-006 8.4100e-003
+			7.7800e-006 1.6900e-003
+			9.2700e-006 0.0000e+000
+			1.2500e-003 0.0000e+000
+		WaveFormCurrent End
+	Transmitter End
+
+	Receiver Begin
+		NumberOfWindows = 19
+		WindowWeightingScheme = AreaUnderCurve
+
+		WindowTimes Begin
+			0.00001139 0.00001500
+			0.00001539 0.00001900
+			0.00001939 0.00002400
+			0.00002439 0.00003100
+			0.00003139 0.00003900
+			0.00003939 0.00004900
+			0.00004939 0.00006200
+			0.00006239 0.00007800
+			0.00007839 0.00009900
+			0.00009939 0.00012500
+			0.00012539 0.00015700
+			0.00015739 0.00019900
+			0.00019939 0.00025000
+			0.00025039 0.00031500
+			0.00031539 0.00039700
+			0.00039739 0.00050000
+			0.00050039 0.00063000
+			0.00063039 0.00079300
+			0.00079339 0.00099900
+		WindowTimes End
+
+		LowPassFilter Begin
+			CutOffFrequency = 300000 450000
+			Order           = 1       1
+		LowPassFilter End
+
+	Receiver End
+
+	ForwardModelling Begin
+
+		OutputType = dB/dt
+
+		SaveDiagnosticFiles = no
+
+		XOutputScaling = 0
+		YOutputScaling = 0
+		ZOutputScaling = 1
+		SecondaryFieldNormalisation  =  none
+
+		FrequenciesPerDecade = 5
+		NumberOfAbsiccaInHankelTransformEvaluation = 21
+
+	ForwardModelling End
+
+System End
