@@ -171,9 +171,287 @@ i.e Low STM then High STM and Low noise model the High noise model.
 
 \subsubsection{Validation}
 
+We can construct an approximate model from the true model image using wavelet
+thresholding using the {\tt analysemodel} program:
 
 \begin{verbatim}
-
+../analysemodel -i syntheticstudy.rawimage \
+  -d 4 -l 4 -w 4 -W 4 \
+  -i syntheticstudy.rawimage \
+  -t 0.10 \
+  -L \
+  -T syntheticstudy.model
 \end{verbatim}
+
+where {\tt -t 0.10} sets the wavelet threshold (lowering this increases
+the fidelity of the model written to {\tt syntheticstudy.model}.
+
+Using this approximate model, we can compute the likelihood using
+the {\tt modellikelihood} program:
+
+\begin{verbatim}
+../modellikelihood -i syntheticstudy.model \
+  -o syntheticstudy.obs \
+  -s ../stm/SkytemLM-BHMAR.stm \
+  -H ../noise_model/brodienoiseLM.txt \
+  -s ../stm/SkytemHM-BHMAR.stm \
+  -H ../noise_model/brodienoiseHM.txt \
+  -D 200.0 -d 4 -l 4 \
+  -w 4 -W 4 
+\end{verbatim}
+
+After some diagnostic output, the program will output the likelihood in the format:
+\begin{verbatim}
+Likelihood: 337.708 (-16903.6)
+\end{verbatim}
+
+The first number is the negative log likelihood unnormalized which is effectively
+the misfit. In this synthetic example, there are 16 1D profiles and each profile
+consists of 19 lower moment and 21 higher moment points for a total of
+640 observations. Therefore, we should expect the likelihood of a ``good''
+model to have a likelihood of around 340 (see \citet{Hawkins:2017:A} for a
+discussion).
+
+\subsection{Inversion}
+
+\subsection{Serial Inversion}
+
+For small test inversions, the serial program {\tt aeminvert} can be used as
+follows:
+
+\begin{verbatim}
+mkdir -p results
+../aeminvert -i syntheticstudy.obs \
+  -I syntheticstudy.model \
+  -s ../stm/SkytemLM-BHMAR.stm \
+  -H ../noise_model/brodienoiseLM.txt \
+  -s ../stm/SkytemHM-BHMAR.stm \
+  -H ../noise_model/brodienoiseHM.txt \
+  -M prior_laplacian.txt \
+  -d 4 -l 4 -w 4 -W 4 \
+  -t 1000 -v 10 \
+  -D 200.0 \
+  -o results/
+\end{verbatim}
+
+The parameters are described as follows:
+
+\begin{description}
+\item[-i] the input observations
+\item[-I] the initial starting model (approximate model from wavelet thresholding in this case)
+\item[-s] STM file(s)
+\item[-H] hierarchical noise model file(s)
+\item[-M] Trans-dimensional tree prior/proposal file
+\item[-d] Depth samples as a power of 2, ie {\tt -d 4} means there are $2^4$ or 16 pixels in
+  the depth direction
+\item[-l] Lateral samples as a power of 2
+\item[-w] Wavelet basis is depth direction (a number between 0 and 4 with 0 being coarse (Haar wavelets)
+  and 4 being smooth (CDF9/7)).
+\item[-W] Wavelet basis in lateral direction
+\item[-t] Total number of iterations
+\item[-v] Verbosity or no. of iterations between status updates
+\item[-D] Depth to halfspace in metres
+\item[-o] Output file(s) prefix (append ``/'') to output to a directory
+\end{description}
+
+While running, the program will periodically output diagnostics of acceptance rates which
+can be used to ensure efficient sampling. Ideally, acceptance rates of value proposals
+should be between about 20 and 60 for each tree level. The acceptance for each
+level are shown in columns, with the overall acceptance rate the value before the ``:'',
+e.g. below the overall Value acceptance is 74.002 and for the first level 70.066.
+
+\begin{verbatim}
+Birth:    497  26.761:  0.000   0.000   4.348  12.214  38.384 
+Death:    504  25.595:  0.000   0.000  10.000  13.636  33.639 
+Value:   8989  74.002: 70.066  54.607  63.867  70.543  88.727 
+Hierarchical   3615/  9990  36.186
+\end{verbatim}
+
+The input parameters that control this is the prior/proposal file. An example of this
+file is included in the tutorial files and reproduced below:
+
+\begin{verbatim}
+laplace
+0.1
+priorbirth
+depthgaussianperturb
+6
+0.002
+0.005
+0.010
+0.020
+0.030
+0.050
+\end{verbatim}
+
+The first two lines specify that the prior on wavelet coefficients is Laplacian with a
+width of 0.1. This width may need adjusting depending on the scale of the problem (i.e.
+range of conductivities). The third line indicates birth/death proposals use prior
+proposals and should be left. The remaining lines indicate that at each level of the
+hierarchicy of wavelet coefficients a different width Gaussian perturbation is used.
+For example, in the file above, the first level coefficient will be perturbed with
+a Gaussian with a standard deviation of 0.002.
+
+In order to tune the performance, each of these numbers can be adjusted to improve
+the acceptance rates. In the current example, if we wanted to reduce the acceptance
+rate of the first level, we could replace the 0.002 on line 6 in this file with
+0.0025 and do a small test run to determine if acceptance has improved. If the acceptance
+rate was too low, we could similarly try reducing this number to 0.0015.
+
+\subsubsection{Results}
+
+The software outputs a number of files, the most important of which is the
+chain history file named {\tt ch.dat}. From this file we can obtain chain statistics
+using the post processing tools. The first is {\tt postprocess\_mean} which we
+can use as follows:
+
+\begin{verbatim}
+../postprocess_mean -d 4 -l 4 \
+	-w 4 -W 4 \
+	-t 5 -s 500
+	-i results/ch.dat \
+	-o results/mean.txt \
+	-D results/stddev.txt \
+\end{verbatim}
+
+The parameters d, l, w, W must match that used during the inversion (i.e. the parameters
+defining the image size and the wavelet bases). The remaining parameters are
+
+\begin{description}
+\item[-s] skip or the number of iterations to remove as burnin samples
+\item[-t] thinning or the number of iterations between taking samples
+\item[-i] input chain history file
+\item[-o] the output mean image
+\item[-D] the output std. deviation of the image
+\end{description}
+
+
+\subsection{Parallel Inversion}
+
+Serial inversion is generally only useful for tuning of proposal parameters and
+trial runs. For a full inversion of data, a parallel version is available that
+includes some extra features such as parallel likelihood computation, parallel Markov chains
+and parallel tempering. 
+
+A detailed example will follow but the way this is configured is that the total number
+of processors available for a inversion is split by specifying the number of
+temperatures for parallel tempering (specifying one means no parallel tempering), and the
+number of chains per temperature (equally the number of chains at T = 1). The number of processors
+available for each chain for parallel likelihood computation is then dictated by the relation
+
+\begin{equation}
+  N_{\mathrm{processes}} = N_{\mathrm{temperatures}} \times N_{\mathrm{chains\; per\; temperature}} \times N_{\mathrm{processors\; per\; chain}}
+\end{equation}
+
+Now an example using the tutorial data set and the parallel version of the AEM inversion
+program, {\tt aeminvert\_pt}:
+
+\begin{verbatim}
+mkdir -p results_pt
+mpirun -np 8 ../aeminvert_pt -i syntheticstudy.obs \
+  -s ../stm/SkytemLM-BHMAR.stm \
+  -H ../noise_model/brodienoiseLM.txt \
+  -s ../stm/SkytemHM-BHMAR.stm \
+  -H ../noise_model/brodienoiseHM.txt \
+  -M prior_laplacian.txt \
+  -d 4 -l 4 -w 4 -W 4 \
+  -D 200.0 \
+  -t 10000 -v 100 \
+  -o results_pt/ \
+  -c 2 -T 4 -m 5.0 \
+  -L 0.1 -p 0.1
+\end{verbatim}
+
+Firstly, we run the program using {\tt mpirun} and specify a total of
+8 processes. The command line parameter {\tt -c 2} specifies that
+there are two chains per temperature and the {\tt -T 4} parameter
+specifies that there are four temperature levels. The maximum
+temperature is specified with the {\tt -m 5.0} command line option and
+the temperature profile is logarithmically spaced between one and this
+value.
+
+The parallel version also includes the ability to hierarchically
+sample a scaling term of the noise model(s). This is enabled
+by setting a proposal width to non-zero with the {\tt -L 0.1}
+command line parameter. The Laplacian prior width can similarly
+be inverted for using hierarchical sampling with the {\tt -p 0.1}
+parameter.
+
+In this example we are starting from an homogeneous model so we
+initially run for 10,000 iterations. For this problem, this
+run takes approximately 15min on a desktop computer.
+
+We can obtain qualitative indications of convergence by looking at
+the progress of the hierarchical scaling parameter which should
+stabilise once converged (and should stabilise to one in this
+synthetic test). This can be examined again by post processing
+with the {\tt postprocess\_likelihood}
+program:
+
+\begin{verbatim}
+../postprocess_likelihood \
+  -i results_pt/ch.dat-000 \
+  -o results_pt/like.txt \
+  -H results_pt/hierarchical.txt \
+  -P results_pt/prior.txt \
+  -t 5
+\end{verbatim}
+
+In the parallel version, each chain history is saved into a separate
+file with the chain index postfixed. In the above example we extract
+the likelihood, hierarchical scaling term, and hierarchical prior history
+as functions of iteration number for the first chain.
+
+In examining the hierarchical output with a simply plotting program
+it will be observed that initially the hierarchical scaling term rapidly
+increases in value and then asymptotically approaches unity.
+
+The parallel version is designed to be restarted continuously and we can
+restart sampling using the same settings as before with
+
+\begin{verbatim}
+mkdir -p results_pt_cont
+mpirun -np 8 ../aeminvert_pt -i syntheticstudy.obs \
+  -s ../stm/SkytemLM-BHMAR.stm \
+  -H ../noise_model/brodienoiseLM.txt \
+  -s ../stm/SkytemHM-BHMAR.stm \
+  -H ../noise_model/brodienoiseHM.txt \
+  -M prior_laplacian.txt \
+  -d 4 -l 4 -w 4 -W 4 \
+  -D 200.0 \
+  -t 10000 -v 100 \
+  -o results_pt_cont/ \
+  -c 2 -T 4 -m 5.0 \
+  -L 0.1 -p 0.1 \
+  -I results_pt/
+\end{verbatim}
+
+Where the {\tt -I results\_pt/} option tells the inversion program to restart from
+the final state from the previous output in this directory.
+
+To view the models obtained from parallel inversion, the parallel version post processing
+script {\tt postprocess\_mean\_mpi} can be used to obtain statistics using the parallel
+chains:
+
+\begin{verbatim}
+mpirun -np 2 ../postprocess_mean_mpi -d 4 -l 4 \
+  -i results_pt_cont/ch.dat \
+  -o results_pt_cont/mean.txt \
+  -D results_pt_cont/stddev.txt \
+  -w 4 -W 4 \
+  -t 5 -s 5000
+\end{verbatim}
+
+The parameters are similar to the serial version with the exception
+that we run this version with {\tt mpirun} with the number of
+processes set to the same as the number of chains in the version,
+i.e. 2 in this case. Secondly, the input file is specified as the
+prefix, so the above command will read input {\tt
+  results\_pt\_cont/ch.dat-000} on process 1 and {\tt
+  results\_pt\_cont/ch.dat-001} on process 2. These chains will have
+temperatures of one.
+
+\bibliography{bibliography}
+\bibliographystyle{plainnat}
 
 \end{document}
