@@ -3,8 +3,7 @@
 LMNOISE = ../noise_models/brodienoiseLM.txt
 HMNOISE = ../noise_models/brodienoiseHM.txt
 
-TARGETS = synthetic_smooth_threshold_0.02 \
-	standard16x16.path \
+TARGETS = standard16x16.path \
 	syntheticstudy.image \
 	syntheticstudy.model \
 	syntheticstudy.obs

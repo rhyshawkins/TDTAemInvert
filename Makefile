@@ -122,127 +122,21 @@ SRCS = Makefile \
 	value.hpp \
 	value_pixel.hpp 
 
-EXTRADIST = libraries/Makefile \
-	libraries/ga-aem.tar.gz \
-	libraries/hnk.tar.gz \
-	libraries/log.tar.gz \
-	libraries/oset.tar.gz \
-	libraries/sphericalwavelet.tar.gz \
-	libraries/tracking.tar.gz \
-	libraries/wavelet.tar.gz \
-	libraries/wavetree.tar.gz \
-	synthetic/Makefile \
-	synthetictests/Makefile \
-	syntheticstudy/Makefile \
-	syntheticstudy/synthetic_smooth \
-	syntheticstudy/synthetic_pixels \
-	syntheticstudy/convertimage.py \
-	syntheticstudy/syntheticstudy.prior \
-	syntheticstudy/syntheticstudy.prior.dw \
-	data/23330.asc \
-	data/23330.obs \
-	data/23330_32_0.obs \
-	data/23330_32_1.obs \
-	data/23330_32_2.obs \
-	data/23330_32_3.obs \
-	data/23330_128.obs \
-	data/23330_256.obs \
-	data/23330_512.obs \
-	data/23330_threshold_0.25.model \
-	data/23330_128_threshold_0.25.model \
-	data/23330_256_threshold_0.25.model \
-	data/23330_512_threshold_0.25.model \
-	data/prior.txt \
-	data/prior_coarse.txt \
-	data/prior_final.txt \
-	data/prior_fine.txt \
-	data/prior32_final.txt \
-	data/prior32_laplacian.txt \
-	data/hypnoiseLM.txt \
-	data/hypnoiseHM.txt \
-	data/brodienoiseLM.txt \
-	data/brodienoiseHM.txt \
-	data/cov32_0_1HM.txt \
-	data/cov32_0_1LM.txt \
-	data/cov32_0_1HM_1.txt \
-	data/cov32_0_1LM_1.txt \
-	data/cov32_2_1HM.txt \
-	data/cov32_2_1LM.txt \
-	datatests/Makefile \
-	stm/SkytemHM-BHMAR.stm \
-	stm/SkytemLM-BHMAR.stm \
+EXTRADIST = noise_models/brodienoiseHM.txt  \
+	noise_models/brodienoiseLM.txt \
 	stm/Skytem-HM.stm \
 	stm/Skytem-LM.stm \
+	stm/SkytemHM-BHMAR.stm \
+	stm/SkytemLM-BHMAR.stm \
 	stm/Tempest-standard.stm \
-	scripts/convert.py \
-	terrawulf/pbs_23330_init.sh \
-	terrawulf/pbs_23330_256_init.sh \
-	terrawulf/pbs_23330_256_init_nocache.sh \
-	terrawulf/pbs_23330_256_init_fromzero_nocache.sh \
-	terrawulf/pbs_23330_mpi_init.sh \
-	terrawulf/pbs_23330_8_4_6_init.sh \
-	terrawulf/pbs_23330_8_4_12_init.sh \
-	terrawulf/pbs_23330_8_4_12_cont.sh \
-	terrawulf/pbs_23330_32_6_5_4_init.sh \
-	terrawulf/pbs_23330_32_6_5_4_cont.sh \
-	terrawulf/pbs_23330_32_6_5_4_init_cov1.sh \
-	terrawulf/pbs_23330_32_6_5_4_cont_cov1.sh \
-	terrawulf/pbs_23330_32_6_10_6_init.sh \
-	terrawulf/pbs_23330_32_6_10_6_cont.sh \
-	terrawulf/pbs_23330_4_2_24_init.sh \
-	terrawulf/pbs_syntheticstudy_4_3_4_init.sh \
-	terrawulf/pbs_syntheticstudy_4_3_4_cont.sh \
-	terrawulf/pbs_syntheticstudy_4_3_4_init_nonh.sh \
-	terrawulf/pbs_syntheticstudy_4_3_4_cont_nonh.sh \
-	terrawulf/pbs_syntheticstudy_4_4_4_T2_init.sh \
-	terrawulf/pbs_syntheticstudy_4_4_4_T2_cont.sh \
-	terrawulf/pbs_syntheticstudy_4_4_4_T2dw_init.sh \
-	terrawulf/pbs_syntheticstudy_4_4_4_T2dw_cont.sh \
-	terrawulf/8_4_12.sh \
-	terrawulf/4_4_4_T2.sh \
-	terrawulf/4_4_4_T2dw.sh \
-	terrawulf/pbs_constant8x8standard_init.sh \
-	terrawulf/pbs_23330_brodie_8_4_12_init.sh \
-	terrawulf/pbs_23330_brodie_8_4_12_cont.sh \
-	terrawulf/pbs_23330_128_8_4_12_init.sh \
-	terrawulf/pbs_23330_128_8_4_12_cont.sh \
-	terrawulf/23330_32_6_10_6_0.sh \
-	terrawulf/23330_32_6_5_4_0.sh \
-	terrawulf/23330_32_6_5_4_1.sh \
-	terrawulf/23330_32_6_5_4_2.sh \
-	terrawulf/23330_32_6_5_4_3.sh \
-	terrawulf/pbs_23330_32_6_10_6_init_haar.sh \
-	terrawulf/pbs_23330_32_6_10_6_cont_haar.sh \
-	raijin/pbs_23330_init.sh \
-	raijin/pbs_23330_8_4_16_init.sh \
-	raijin/pbs_23330_8_4_16_cont.sh \
-	raijin/pbs_23330_32_8_4_4_init.sh \
-	raijin/pbs_23330_32_8_4_4_cont.sh \
-	raijin/pbs_23330_32_8_8_4_init.sh \
-	raijin/pbs_23330_32_8_8_4_cont.sh \
-	raijin/pbs_23330_32_8_8_4_hp_init.sh \
-	raijin/pbs_23330_32_8_8_4_hp_cont.sh \
-	raijin/pbs_23330_32_8_8_4_hp_cov_init.sh \
-	raijin/pbs_23330_32_8_8_4_hp_cov_cont.sh \
-	raijin/pbs_23330_32_8_8_4_cov_init.sh \
-	raijin/pbs_23330_32_8_8_4_cov_cont.sh \
-	raijin/pbs_23330_128_8_4_16_init.sh \
-	raijin/pbs_23330_128_8_4_16_cont.sh \
-	raijin/pbs_23330_128_8_4_16_init_hierarchical.sh \
-	raijin/pbs_23330_128_8_4_16_cont_hierarchical.sh \
-	raijin/pbs_23330_128_8_4_16_cont_hierarchical_sample.sh \
-	raijin/pbs_23330_8_4_16_test.sh \
-	raijin/pbs_23330_32_8_32_4_cov_cont.sh \
-	raijin/pbs_23330_32_8_32_4_cov_init.sh \
-	raijin/23330_32_0.sh \
-	raijin/23330_32_1.sh \
-	raijin/23330_32_2.sh \
-	raijin/23330_32_3.sh \
-	raijin/23330_32_cov_0.sh \
-	raijin/23330_32_32_0.sh \
-	raijin/cov32_0_HP_LM.txt \
-	raijin/cov32_0_HP_HM.txt 
-
+	doc/manual.tex \
+	doc/bibliography.bib \
+	doc/manual.pdf \
+	tutorial/Makefile \
+	tutorial/convertimage.py \
+	tutorial/prior_laplacian.txt \
+	tutorial/smoothimage.py \
+	tutorial/synthetic_pixels
 
 TARGETS = mksyntheticflightpath \
 	mksyntheticimage \
@@ -327,11 +221,13 @@ computeresiduals : computeresiduals.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $*.o $*.cpp
 
 DATE = $(shell date +"%Y%m%d%H%M")
-DIR = AemInvert
+DIR = TDTAemInvert
 TGZ = $(DIR).tar.gz
 
+doc/manual.pdf : doc/manual.tex
+	cd doc && pdflatex manual.tex && bibtex manual && pdflatex manual.tex && pdflatex manual.tex
+
 dist :
-	make -C libraries dist
 	mkdir -p $(DIR)
 	echo $(DATE) > $(DIR)/Version
 	for f in Makefile $(SRCS) $(EXTRADIST); do \
