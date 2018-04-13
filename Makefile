@@ -2,9 +2,9 @@
 TDTBASE=../TDTbase
 
 #
-# TODO Remove GAAEM from PhD repo
+# TODO : Properly link into Github version of GA Library
 #
-GAAEMBASE=/home/rhys/PhD/PhDS/libraries
+GAAEMBASE=../
 
 INCLUDES = \
 	$(shell mpicc -showme:compile) \
