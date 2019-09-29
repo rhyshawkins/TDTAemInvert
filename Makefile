@@ -1,10 +1,7 @@
 
 TDTBASE=../TDTbase
 
-#
-# TODO : Properly link into Github version of GA Library
-#
-GAAEMBASE=../
+GAAEMBASE=.
 
 INCLUDES = \
 	$(shell mpicc -showme:compile) \
